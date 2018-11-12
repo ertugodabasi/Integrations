@@ -1,0 +1,503 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"version": "1.0.0",
+		"title": "ÇiçekSepeti APIs",
+		"description": "Bu api çiçeksepetinde ürünleri satılan firmaların ürünleri ile ilgili güncelleme yapması ve ilgili firmaların sipariş bilgilerini alabilmeleri için kullanılabilir"
+	},
+	"host": "apis.ciceksepeti.com",
+	"schemes": [
+		"https"
+	],
+	"x-servers": [{
+			"url": "//apis.ciceksepeti.com/api/v1",
+			"description": "Production API"
+		},
+		{
+			"url": "//sandbox-apis.ciceksepeti.com/api/v1",
+			"description": "Sandbox API"
+		}
+	],
+	"basePath": "/api/v1",
+	"produces": [
+		"application/json"
+	],
+	"tags": [{
+			"name": "order",
+			"description": "Ürün işlemleri"
+		},
+		{
+			"name": "product",
+			"description": "Sipariş işlemleri"
+		}
+	],
+	"paths": {
+		"/Order/GetOrders": {
+			"post": {
+				"tags": [
+					"order"
+				],
+				"description": "İlgili firmalara ait tekil id’ler ile gelinerek firmalara ait sipariş bilgileri çekilebilir. Tek bir firmanın veya liste halinde birden fazla firmanın siparişleri çekilebilir. Siparişler sayfalama yapılarak verilir.",
+				"operationId": "Orders",
+				"consumes": [
+					"application/json"
+				],
+				"parameters": [{
+					"in": "body",
+					"name": "GetOrdersModel",
+					"description": "Modelin detayı için tıklayın",
+					"required": true,
+					"schema": {
+						"$ref": "#/definitions/GetOrdersModel"
+					}
+				}],
+				"responses": {
+					"200": {
+						"description": "success",
+						"schema": {
+							"$ref": "#/definitions/GetOrdersResponse"
+						}
+					},
+					"500": {
+						"description": "internal server error"
+					}
+				},
+				"security": [{
+					"api_key": []
+				}]
+			}
+		},
+		"/Product/UpdatePrice": {
+			"put": {
+				"tags": [
+					"product"
+				],
+				"description": "Ürünlerin ait oldukları tedarikçi bilgisi ve ürün id’si ile gelinerek ürünlerin güncel  fiyat bilgisi çiçeksepetine iletilir. \n Yapılan işlemler sonucu başarılı/başarısız bilgisi dönülür.",
+				"operationId": "Price",
+				"consumes": [
+					"application/json"
+				],
+				"parameters": [{
+					"in": "body",
+					"name": "UpdatePriceModel",
+					"description": "Modelin detayı için tıklayın",
+					"required": true,
+					"schema": {
+						"$ref": "#/definitions/UpdatePriceModel"
+					}
+				}],
+				"responses": {
+					"200": {
+						"description": "success",
+						"schema": {
+							"$ref": "#/definitions/UpdatePriceResponse"
+						}
+					},
+					"500": {
+						"description": "internal server error"
+					}
+				},
+				"security": [{
+					"api_key": []
+				}]
+			}
+		},
+		"/Product/UpdateStock": {
+			"put": {
+				"tags": [
+					"product"
+				],
+				"description": "Ürünlerin ait oldukları tedarikçi bilgisi ve ürün id’si ile gelinerek ürünlerin güncel stokları çiçeksepetine iletilir. \n Yapılan işlemler sonucu başarılı/başarısız bilgisi dönülür.",
+				"operationId": "Stock",
+				"consumes": [
+					"application/json"
+				],
+				"parameters": [{
+					"in": "body",
+					"name": "UpdateStockModel",
+					"description": "Modelin detayı için tıklayın",
+					"required": true,
+					"schema": {
+						"$ref": "#/definitions/UpdateStockModel"
+					}
+				}],
+				"responses": {
+					"200": {
+						"description": "success",
+						"schema": {
+							"$ref": "#/definitions/UpdateStockResponse"
+						}
+					},
+					"500": {
+						"description": "internal server error"
+					}
+				},
+				"security": [{
+					"api_key": []
+				}]
+			}
+		},
+		"/Branch/SendInvoiceMail": {
+			"post": {
+				"tags": [
+					"branch"
+				],
+				"operationId": "SendInvoiceMail",
+				"description": "Alt sipariş numarası ve base64 formatındaki döküman ile, bayiden gelen fatura gönderim isteğini işlenmek üzere kuyruğa ekler.",
+				"consumes": [
+					"application/json"
+				],
+				"parameters": [{
+					"in":"body",
+					"name":"body",
+					"required": true,
+					"schema": {
+						"$ref": "#/definitions/BranchCustomizedInvoiceMailModel"
+					}
+				}],
+				"responses": {
+					"200": {
+						"description": "success"
+					},
+					"400": {
+						"description": "bad request. Fatura listesi / listedeki herhangi bir alt sipariş numarası veya döküman eksik."
+					},
+					"500": {
+						"description": "internal server error"
+					}
+				},
+				"security": [{
+					"api_key": []
+				}]
+			}
+		}
+	},
+	"securityDefinitions": {
+		"api_key": {
+			"description": "Api'ye ulaşabileceğiniz Token bilgisi ayrıca iletilecektir.",
+			"type": "apiKey",
+			"name": "x-api-key",
+			"in": "header"
+		}
+	},
+	"definitions": {
+		"BranchCustomizedInvoiceMailModel": {
+			"required": [
+				"Items"
+			],
+			"properties": {
+				"Items": {
+					"type": "array",
+					"$ref": "#/definitions/BranchCustomizedInvoiceMailItemModel"
+				}
+			}
+		},
+		"BranchCustomizedInvoiceMailItemModel": {
+			"description": "Mail atılması istenen fatura bilgisi.",
+			"type": "object",
+			"required": [
+				"OrderProductId",
+				"Document"
+			],
+			"properties": {
+				"OrderProductId": {
+					"description": "Alt sipariş numarası.",
+					"format": "int32",
+					"type": "integer",
+					"example": "70004321"
+				},
+				"Document": {
+					"description": "Base64 ve pdf formatındaki fatura dökümanı.",
+					"type": "string",
+					"example": "base64 pdf string..."
+				}
+			}
+		},
+		"GetOrdersModel": {
+			"description": "Get order model",
+			"type": "object",
+			"properties": {
+				"startDate": {
+					"description": "Hangi tarihten sonraki siparişler isteniyor.",
+					"type": "string",
+					"format": "date"
+				},
+				"endDate": {
+					"description": "Hangi tarihten önceki siparişler isteniyor.",
+					"type": "string",
+					"format": "date"
+				},
+				"storeId": {
+					"format": "int32",
+					"description": "Siparişlerin ait olduğu site id’si (Default 1 gönderilmelidir.)",
+					"type": "integer"
+				},
+				"branchIdList": {
+					"description": "Siparişlerin ait olduğu bayi unique id",
+					"type": "array",
+					"items": {
+						"format": "int32",
+						"type": "integer"
+					}
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Bir sayfada kaç tane eleman olduğunu belirtir. Max 1999",
+					"type": "integer"
+				},
+				"page": {
+					"format": "int32",
+					"description": "Kaçıncı sayfa isteniyor bilgisini belirtir. 0 dan başlar. İlk sayfa için Page=0 istenmelidir.",
+					"type": "integer"
+				}
+			}
+		},
+		"GetOrdersResponse": {
+			"type": "object",
+			"properties": {
+				"supplierOrderListWithBranch": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/SupplierOrderModel"
+					}
+				}
+			}
+		},
+		"SupplierOrderModel": {
+			"type": "object",
+			"properties": {
+				"branchId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"supplierOrderList": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/SupplierOrder"
+					}
+				}
+			}
+		},
+		"SupplierOrder": {
+			"type": "object",
+			"properties": {
+				"branchId": {
+					"description": "Siparişin ait olduğu firma id'si",
+					"format": "int32",
+					"type": "integer"
+				},
+				"customerId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"orderId": {
+					"description": "Sipariş Numarası",
+					"format": "int32",
+					"type": "integer"
+				},
+				"orderItemId": {
+					"description": "Alt sipariş numarası",
+					"format": "int32",
+					"type": "integer"
+				},
+				"marketPlaceCargoNumber": {
+					"description": "",
+					"type": "string"
+				},
+				"accountCode": {
+					"description": "Bayinin muhasebe kodu",
+					"type": "string"
+				},
+				"accountCodePrefix": {
+					"description": "",
+					"type": "string"
+				},
+				"orderCreateDate": {
+					"description": "Sipariş oluşma tarihi",
+					"type": "string"
+				},
+				"orderCreateTime": {
+					"description": "Sipariş oluşma saati",
+					"type": "string"
+				},
+				"discount": {
+					"description": "İndirim",
+					"format": "double",
+					"type": "number"
+				},
+				"totalPrice": {
+					"description": "Sipariş tutarı",
+					"format": "double",
+					"type": "number"
+				},
+				"receiverName": {
+					"description": "Alıcı adı",
+					"type": "string"
+				},
+				"receiverAddress": {
+					"description": "Alıcı adresi",
+					"type": "string"
+				},
+				"deliveryType": {
+					"description": "Teslimat tipi (Kargo)",
+					"type": "string"
+				},
+				"cargoCompany": {
+					"description": "Kargo firması",
+					"type": "string"
+				},
+				"receiverCity": {
+					"description": "Alıcı il",
+					"type": "string"
+				},
+				"receiverRegion": {
+					"description": "Alıcı ilçe",
+					"type": "string"
+				},
+				"senderName": {
+					"description": "Gönderici adı",
+					"type": "string"
+				},
+				"senderAddress": {
+					"description": "Gönderici adresi",
+					"type": "string"
+				},
+				"senderTaxNumber": {
+					"description": "Gönderici vergi no",
+					"type": "string"
+				},
+				"senderTaxOfficeName": {
+					"description": "Gönderici vergi dairesi",
+					"type": "string"
+				},
+				"senderCity": {
+					"description": "Gönderici il",
+					"type": "string"
+				},
+				"senderRegion": {
+					"description": "Gönderici ilçe",
+					"type": "string"
+				},
+				"cargoNumber": {
+					"description": "Kargo numarası",
+					"type": "string"
+				},
+				"orderPaymentType": {
+					"description": "Ödeme tipi",
+					"type": "string"
+				},
+				"supplierOrderItem": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/SupplierItem"
+					}
+				}
+			}
+		},
+		"SupplierItem": {
+			"type": "object",
+			"properties": {
+				"code": {
+					"description": "Ürün kodu",
+					"type": "string"
+				},
+				"quantity": {
+					"description": "Ürün adet",
+					"format": "int32",
+					"type": "integer"
+				},
+				"quantityUnit": {
+					"description": "Birim",
+					"type": "string"
+				},
+				"totalPrice": {
+					"description": "Sipariş tutarı",
+					"format": "double",
+					"type": "number"
+				},
+				"tax": {
+					"description": "Kdv",
+					"format": "double",
+					"type": "number"
+				}
+			}
+		},
+		"UpdateStockModel": {
+			"description": "Update stock model",
+			"type": "object",
+			"properties": {
+				"stockQuantity": {
+					"description": "Stok adedi",
+					"format": "int32",
+					"type": "integer"
+				},
+				"externalId": {
+					"description": "Ürün id’si",
+					"type": "string"
+				},
+				"supplierId": {
+					"description": "Firma id’si",
+					"format": "int32",
+					"type": "integer"
+				}
+			}
+		},
+		"UpdateStockResponse": {
+			"type": "object",
+			"properties": {
+				"isSuccess": {
+					"type": "boolean"
+				},
+				"message": {
+					"type": "string"
+				}
+			}
+		},
+		"UpdatePriceModel": {
+			"description": "Update price model",
+			"type": "object",
+			"properties": {
+				"buyingPrice": {
+					"description": "Satış fiyatı",
+					"format": "double",
+					"type": "number"
+				},
+				"price": {
+					"description": "Ürün Fiyatı",
+					"format": "double",
+					"type": "number"
+				},
+				"totalPrice": {
+					"description": "Toplam fiyat",
+					"format": "double",
+					"type": "number"
+				},
+				"externalId": {
+					"description": "Ürün id’si",
+					"type": "string"
+				},
+				"supplierId": {
+					"description": "Firma id’si",
+					"format": "int32",
+					"type": "integer"
+				},
+				"storeId": {
+					"description": "Site id’si",
+					"format": "int32",
+					"type": "integer"
+				}
+			}
+		},
+		"UpdatePriceResponse": {
+			"type": "object",
+			"properties": {
+				"isSuccess": {
+					"type": "boolean"
+				},
+				"message": {
+					"type": "string"
+				}
+			}
+		}
+	},
+}
